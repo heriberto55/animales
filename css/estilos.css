@@ -551,6 +551,13 @@ main .sobre-nosotros{
 .about-services{
     background: #f2f2f2;
     padding-bottom: 30px;
+    width: 100%;
+    height: 20%;
+}
+.imgbaner{
+    width: 100%;
+    height: 30%;
+    
 }
 
 
