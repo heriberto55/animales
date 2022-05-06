@@ -284,6 +284,10 @@ nav > a:hover{
     text-decoration: underline;
     
 }
+.logonav{
+    width: 180px;
+    padding: 5px 0px 0 10px;
+}
 
 header .textos-header{
     display: flex;
