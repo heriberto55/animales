@@ -86,6 +86,87 @@ body {
     
   
 }
+
+.tabla-calendario-wrap {
+    width: 100%;
+    overflow-x: auto;
+    margin: 20px 0 35px;
+}
+
+.tabla-calendario {
+    width: 100%;
+    min-width: 720px;
+    border-collapse: separate;
+    border-spacing: 0;
+    color: #000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.tabla-calendario th,
+.tabla-calendario td {
+    position: relative;
+    padding: 18px 28px 18px 12px;
+    border-right: 1px solid #79a96d;
+    border-bottom: 1px solid #79a96d;
+    vertical-align: middle;
+}
+
+.tabla-calendario tr:nth-child(odd) th,
+.tabla-calendario tr:nth-child(odd) td {
+    background: #c6dfb7;
+}
+
+.tabla-calendario tr:nth-child(even) th,
+.tabla-calendario tr:nth-child(even) td {
+    background: #dfecd8;
+}
+
+.tabla-calendario th {
+    width: 13%;
+}
+
+.tabla-calendario td:nth-child(2) {
+    width: 39%;
+}
+
+.tabla-calendario td:last-child {
+    width: 48%;
+}
+
+.tabla-calendario .fila-etapa {
+    cursor: pointer;
+}
+
+.tabla-calendario .fila-etapa:hover th,
+.tabla-calendario .fila-etapa:hover td {
+    background: #b8d9a7;
+}
+
+.tabla-calendario .fila-etapa td:last-child::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 4px;
+    width: 0;
+    height: 0;
+    border-top: 9px solid transparent;
+    border-bottom: 9px solid transparent;
+    border-left: 18px solid #64a63f;
+}
+
+.tabla-calendario .fila-etapa td:last-child::before {
+    content: "";
+    position: absolute;
+    right: 13px;
+    bottom: 10px;
+    width: 13px;
+    height: 6px;
+    background: #64a63f;
+}
+
 .pdf{
     width: 30%;
     height: 30%;
@@ -96,7 +177,7 @@ body {
 .modal {
     display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
+    z-index: 9999; /* Sit on top */
     padding-top: 100px; /* Location of the box */
     left: 0;
     top: 0;
@@ -303,7 +384,7 @@ header .textos-header{
     
         width: 100%;
         height: 33px;
-        background-color: var(--token-772d0cd9-b632-443a-8d96-c2312b86b16f, #449b41);
+        background-color: #c79656;
         color:#fff;
         overflow: visible;
         position: relative; display: flex;
@@ -512,6 +593,101 @@ main .sobre-nosotros{
     transform: scale(1);
 }
 
+.menu-moderno {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    padding: 14px 0 38px;
+    background: rgba(21, 71, 60, 0.78);
+    backdrop-filter: blur(2px);
+}
+
+.menu-moderno .contenedor {
+    width: min(1120px, 92%);
+    max-width: 1120px;
+}
+
+.menu-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 14px;
+}
+
+.menu-card {
+    position: relative;
+    min-height: 132px;
+    padding: 22px 18px 42px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.46);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 16px 34px rgba(11, 33, 28, 0.22);
+    cursor: pointer;
+    text-align: left;
+    user-select: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.menu-card::before {
+    content: "";
+    position: absolute;
+    right: 14px;
+    bottom: 14px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #c79656;
+}
+
+.menu-card::after {
+    content: "";
+    position: absolute;
+    right: 23px;
+    bottom: 22px;
+    width: 10px;
+    height: 10px;
+    border-top: 3px solid #fff;
+    border-right: 3px solid #fff;
+    transform: rotate(45deg);
+}
+
+.menu-card:hover,
+.menu-card:focus {
+    transform: translateY(-4px);
+    border-color: #c79656;
+    box-shadow: 0 22px 42px rgba(11, 33, 28, 0.3);
+    outline: none;
+}
+
+.menu-card h2 {
+    margin: 0 0 10px;
+    color: #15473c;
+    font-size: 24px;
+    line-height: 1.1;
+}
+
+.menu-card p {
+    margin: 0;
+    color: #354d45;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.menu-card-highlight {
+    background: #651D32;
+    color: #fff;
+}
+
+.menu-card-highlight h2,
+.menu-card-highlight p {
+    color: #fff;
+}
+
+.menu-card-highlight::before {
+    background: #c79656;
+}
+
 /* Clients */
 
 .cards{
@@ -648,12 +824,10 @@ footer{
 
 
 .imagen5{
-    width: 50%;  
-    position: center; 
-    align-items: center; 
-    flex-direction: column;
-    text-align: center;
-    
+    width: 38%;  
+    position: relative; 
+    display: block;
+    margin: 0 auto -20px;
 }
 .btn-img { cursor:pointer;}
 
@@ -708,7 +882,7 @@ iframe { width: 250px; height: 280px; }
     
         width: 100%;
         height: 33px;
-        background-color: var(--token-772d0cd9-b632-443a-8d96-c2312b86b16f, #449b41);
+        background-color: #c79656;
         color:#fff;
         overflow: visible;
         position: relative; display: flex;
@@ -772,7 +946,7 @@ iframe { width: 250px; height: 280px; }
        }
       
 .imagen5{
-        width: 100%;  
+        width: 76%;  
         position: relative; 
         align-items: center; 
         flex-direction: column;
@@ -925,7 +1099,7 @@ iframe { width: 250px; height: 280px; }
     
         width: 100%;
         height: 33px;
-        background-color: var(--token-772d0cd9-b632-443a-8d96-c2312b86b16f, #651D32);
+        background-color: #c79656;
         color:#fff;
         overflow: visible;
         position: relative; display: flex;
@@ -992,7 +1166,7 @@ iframe { width: 250px; height: 280px; }
        
  }
     .imagen5{
-        width: 100%;  
+        width: 76%;  
         position: relative; 
         align-items: center; 
         flex-direction: column;
