@@ -10,6 +10,7 @@
   const mediaTools = document.getElementById('mediaTools');
   const insertMenu = document.getElementById('insertMenu');
   const selectedMenu = document.getElementById('selectedMenu');
+  const linkMenu = document.getElementById('linkMenu');
   const insertImageButton = document.getElementById('insertImage');
   const insertVideoButton = document.getElementById('insertVideo');
   const insertYoutubeButton = document.getElementById('insertYoutube');
@@ -20,6 +21,10 @@
   const moveMediaDownButton = document.getElementById('moveMediaDown');
   const deleteMediaButton = document.getElementById('deleteMedia');
   const selectedMediaLabel = document.getElementById('selectedMediaLabel');
+  const linkTextInput = document.getElementById('linkText');
+  const linkUrlInput = document.getElementById('linkUrl');
+  const saveLinkButton = document.getElementById('saveLink');
+  const removeLinkButton = document.getElementById('removeLink');
   const imageUpload = document.getElementById('imageUpload');
   const videoUpload = document.getElementById('videoUpload');
   const replaceUpload = document.getElementById('replaceUpload');
@@ -28,6 +33,7 @@
   let originalHtml = '';
   let editing = false;
   let selectedMedia = null;
+  let selectedLink = null;
   let savedRange = null;
 
   function getFrameDocument() {
@@ -99,6 +105,21 @@
     return null;
   }
 
+  function closestLink(element) {
+    let node = element && element.nodeType === 3 ? element.parentElement : element;
+    return node && node.closest ? node.closest('a') : null;
+  }
+
+  function linkAtPoint(doc, x, y, target) {
+    const targetLink = closestLink(target);
+    if (targetLink) {
+      return targetLink;
+    }
+
+    const element = doc.elementFromPoint ? doc.elementFromPoint(x, y) : null;
+    return closestLink(element);
+  }
+
   function setInsertPointFromEvent(doc, event) {
     let range = null;
     if (doc.caretRangeFromPoint) {
@@ -128,6 +149,7 @@
   function reloadPreview() {
     editing = false;
     selectedMedia = null;
+    selectedLink = null;
     savedRange = null;
     hideContextMenu();
     editButton.disabled = true;
@@ -139,6 +161,7 @@
   function showContextMenu(clientX, clientY, mode) {
     insertMenu.hidden = mode !== 'insert';
     selectedMenu.hidden = mode !== 'selected';
+    linkMenu.hidden = mode !== 'link';
     mediaTools.hidden = false;
 
     const margin = 12;
@@ -170,6 +193,23 @@
     updateMediaButtons();
   }
 
+  function selectLink(element) {
+    const doc = getFrameDocument();
+    doc.querySelectorAll('.cms-selected-link').forEach(function (node) {
+      node.classList.remove('cms-selected-link');
+    });
+
+    selectedLink = element && element.tagName === 'A' ? element : null;
+    if (selectedLink) {
+      selectedLink.classList.add('cms-selected-link');
+      linkTextInput.value = selectedLink.textContent.trim();
+      linkUrlInput.value = selectedLink.getAttribute('href') || '';
+    } else {
+      linkTextInput.value = '';
+      linkUrlInput.value = '';
+    }
+  }
+
   function addEditorStyles(doc) {
     if (doc.getElementById('cms-editor-styles')) {
       return;
@@ -179,7 +219,8 @@
     style.id = 'cms-editor-styles';
     style.textContent = [
       '.cms-editing img,.cms-editing video,.cms-editing iframe{cursor:pointer;outline:2px dashed rgba(31,122,77,.35);outline-offset:3px;pointer-events:none;}',
-      '.cms-editing .cms-selected-media{outline:4px solid #1f7a4d!important;outline-offset:4px;}'
+      '.cms-editing .cms-selected-media{outline:4px solid #1f7a4d!important;outline-offset:4px;}',
+      '.cms-editing .cms-selected-link{outline:3px solid #c79656!important;outline-offset:3px;}'
     ].join('');
     doc.head.appendChild(style);
   }
@@ -192,6 +233,9 @@
 
     doc.querySelectorAll('.cms-selected-media').forEach(function (node) {
       node.classList.remove('cms-selected-media');
+    });
+    doc.querySelectorAll('.cms-selected-link').forEach(function (node) {
+      node.classList.remove('cms-selected-link');
     });
     doc.body.classList.remove('cms-editing');
   }
@@ -209,11 +253,13 @@
         if (isMediaElement(media)) {
           event.preventDefault();
           event.stopPropagation();
+          selectLink(null);
           selectMedia(media);
           return;
         }
 
         selectMedia(null);
+        selectLink(null);
       }, true);
 
       doc.addEventListener('contextmenu', function (event) {
@@ -228,12 +274,23 @@
         const media = mediaAtPoint(doc, event.clientX, event.clientY);
         if (isMediaElement(media)) {
           selectMedia(media);
+          selectLink(null);
           savedRange = null;
           showContextMenu(frameRect.left + event.clientX, frameRect.top + event.clientY, 'selected');
           return;
         }
 
+        const link = linkAtPoint(doc, event.clientX, event.clientY, event.target);
+        if (link) {
+          selectMedia(null);
+          selectLink(link);
+          savedRange = null;
+          showContextMenu(frameRect.left + event.clientX, frameRect.top + event.clientY, 'link');
+          return;
+        }
+
         selectMedia(null);
+        selectLink(null);
         setInsertPointFromEvent(doc, event);
         showContextMenu(frameRect.left + event.clientX, frameRect.top + event.clientY, 'insert');
       }, true);
@@ -333,6 +390,7 @@
     } else {
       savedRange = null;
       selectMedia(null);
+      selectLink(null);
     }
 
     setStatus(editing ? 'Modo edición activo' : '');
@@ -533,12 +591,44 @@
     setStatus('Elemento eliminado.');
   });
 
-  document.addEventListener('click', function (event) {
-    if (event.button === 0) {
-      hideContextMenu();
+  saveLinkButton.addEventListener('click', function () {
+    if (!selectedLink || !selectedLink.isConnected) {
+      setStatus('Selecciona un enlace para editar.', true);
+      return;
     }
 
-    if (!mediaTools.hidden && !mediaTools.contains(event.target)) {
+    const text = linkTextInput.value.trim();
+    const url = linkUrlInput.value.trim();
+    if (text === '' || url === '') {
+      setStatus('Escribe el nombre del enlace y el URL.', true);
+      return;
+    }
+
+    selectedLink.textContent = text;
+    selectedLink.setAttribute('href', url);
+    hideContextMenu();
+    setStatus('Enlace actualizado.');
+  });
+
+  removeLinkButton.addEventListener('click', function () {
+    if (!selectedLink || !selectedLink.isConnected) {
+      setStatus('Selecciona un enlace para quitar.', true);
+      return;
+    }
+
+    const text = selectedLink.textContent;
+    selectedLink.replaceWith(document.createTextNode(text));
+    selectedLink = null;
+    hideContextMenu();
+    setStatus('Enlace quitado.');
+  });
+
+  document.addEventListener('click', function (event) {
+    if (!mediaTools.hidden && mediaTools.contains(event.target)) {
+      return;
+    }
+
+    if (event.button === 0) {
       hideContextMenu();
     }
   });

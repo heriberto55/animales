@@ -119,6 +119,19 @@ if ($loggedIn && !cms_is_allowed_page($selectedPage)) {
           <button id="moveMediaDown" type="button" disabled>Mover abajo</button>
           <button id="deleteMedia" type="button" class="danger" disabled>Eliminar</button>
         </div>
+        <div id="linkMenu" class="context-section">
+          <strong>Editar enlace</strong>
+          <label>
+            Nombre del enlace
+            <input id="linkText" type="text" placeholder="Texto visible">
+          </label>
+          <label>
+            URL
+            <input id="linkUrl" type="url" placeholder="https://ejemplo.com">
+          </label>
+          <button id="saveLink" type="button">Guardar enlace</button>
+          <button id="removeLink" type="button" class="danger">Quitar enlace</button>
+        </div>
       </div>
       <input id="imageUpload" type="file" accept="image/*" hidden>
       <input id="videoUpload" type="file" accept="video/*" hidden>
