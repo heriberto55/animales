@@ -13,7 +13,8 @@ RUN chmod +x /usr/local/bin/cms-entrypoint
 
 COPY . /var/www/html/
 RUN rm -rf /var/www/html/cms/sessions /var/www/html/cms/backups /var/www/html/docker \
-    && chown -R www-data:www-data /var/www/html
+    && chown -R www-data:www-data /var/www/html \
+    && chmod 755 /var/www/html
 
 EXPOSE 80
 
