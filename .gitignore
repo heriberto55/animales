@@ -1,1 +1,6 @@
 *.mp4
+.DS_Store
+data/
+uploads/
+cms/sessions/
+cms/backups/
