@@ -13,6 +13,7 @@
   const linkMenu = document.getElementById('linkMenu');
   const insertImageButton = document.getElementById('insertImage');
   const insertVideoButton = document.getElementById('insertVideo');
+  const insertFileButton = document.getElementById('insertFile');
   const insertYoutubeButton = document.getElementById('insertYoutube');
   const replaceMediaButton = document.getElementById('replaceMedia');
   const replaceIframeButton = document.getElementById('replaceIframe');
@@ -27,6 +28,7 @@
   const removeLinkButton = document.getElementById('removeLink');
   const imageUpload = document.getElementById('imageUpload');
   const videoUpload = document.getElementById('videoUpload');
+  const fileUpload = document.getElementById('fileUpload');
   const replaceUpload = document.getElementById('replaceUpload');
   const config = window.CMS_CONFIG || {};
   const previewBaseUrl = frame.getAttribute('src').split('?')[0];
@@ -103,6 +105,54 @@
     }
 
     return null;
+  }
+
+  function escapeHtml(value) {
+    return String(value || '').replace(/[&<>"']/g, function (char) {
+      return {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      }[char];
+    });
+  }
+
+  function escapeAttribute(value) {
+    return escapeHtml(value);
+  }
+
+  function filePreviewHtml(data) {
+    const url = data.url || '';
+    const name = data.name || 'Archivo';
+    const extension = (data.fileType || 'file').toUpperCase();
+    const labelHtml = [
+      '<a class="cms-file-card" href="' + escapeAttribute(url) + '" target="_blank" rel="noopener" download>',
+      '<span class="cms-file-card-icon">' + escapeHtml(extension) + '</span>',
+      '<span class="cms-file-card-body">',
+      '<strong>' + escapeHtml(name) + '</strong>',
+      '<small>Click para abrir o descargar</small>',
+      '</span>',
+      '</a>'
+    ].join('');
+
+    if ((data.fileType || '').toLowerCase() === 'pdf') {
+      return [
+        '<div class="cms-file-preview cms-file-preview-pdf">',
+        '<object class="cms-file-object" data="' + escapeAttribute(url) + '" type="application/pdf">',
+        '<span class="cms-file-fallback">Vista previa no disponible.</span>',
+        '</object>',
+        labelHtml,
+        '</div>'
+      ].join('');
+    }
+
+    return [
+      '<div class="cms-file-preview">',
+      labelHtml,
+      '</div>'
+    ].join('');
   }
 
   function closestLink(element) {
@@ -445,6 +495,11 @@
     videoUpload.click();
   });
 
+  insertFileButton.addEventListener('click', function () {
+    hideContextMenu();
+    fileUpload.click();
+  });
+
   insertYoutubeButton.addEventListener('click', function () {
     hideContextMenu();
     const url = prompt('Pega el link de YouTube');
@@ -589,6 +644,27 @@
     selectedMedia.remove();
     selectMedia(null);
     setStatus('Elemento eliminado.');
+  });
+
+  fileUpload.addEventListener('change', function () {
+    const file = fileUpload.files[0];
+    fileUpload.value = '';
+    if (!file) {
+      return;
+    }
+
+    uploadMedia(file).then(function (data) {
+      if (data.type === 'image') {
+        insertHtml('<img src="' + data.url + '" alt="">');
+      } else if (data.type === 'video') {
+        insertHtml('<video src="' + data.url + '" controls></video>');
+      } else {
+        insertHtml(filePreviewHtml(data));
+      }
+      setStatus('Archivo agregado.');
+    }).catch(function (error) {
+      setStatus(error.message, true);
+    });
   });
 
   saveLinkButton.addEventListener('click', function () {
